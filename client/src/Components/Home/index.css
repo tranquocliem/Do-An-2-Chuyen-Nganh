@@ -1,0 +1,16 @@
+.main {
+  animation: animation ease-in-out 1s;
+  transition: 0.5s;
+  top: 0;
+}
+
+/* @keyframes animation {
+  0% {
+    opacity: 0;
+    transform: rotate(-360deg) scale(0);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(360deg) scale(1);
+  }
+} */
