@@ -74,7 +74,7 @@ accRouter.post("/sendMail", (req, res) => {
           to: email,
           subject: "Kích Hoạt Tài Khoản",
           html: `
-                        <h1>Vui Lòng Xử Dụng Đường Link Phía Dưới Để Kích Hoạt Tài Khoản</h1>
+                        <h1>Vui Lòng Sử Dụng Đường Link Phía Dưới Để Kích Hoạt Tài Khoản</h1>
                         <p>Link: <a href="http://localhost:3000/activate/${token}&150999">Click Vào Đây!!!</a></p>
                         <h3 style="color:red;">Lưu ý: Đường Link Này Chỉ Có Thời Hạn Là 10 Phút Sau Thời Hạn Sẽ Không Còn Hiệu Lực Nũa!!!</h3>
                         <hr />
@@ -248,6 +248,7 @@ accRouter.post("/register", (req, res) => {
 // });
 
 //login
+
 const signToken = (userID) => {
   return JWT.sign(
     {
@@ -284,6 +285,251 @@ accRouter.get(
   }
 );
 
+//gửi link qua mail để đặt lại mật khẩu đã quên
+accRouter.post("/forgetPass", (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    res.status(400).json({
+      success: false,
+      message: {
+        msgBody: "Vui lòng nhập E-mail",
+        msgError: true,
+      },
+    });
+    return;
+  } else {
+    Account.findOne({ email }, (err, user) => {
+      if (err) {
+        res.status(400).json({
+          success: false,
+          message: {
+            msgBody: "Có lỗi xãy ra",
+            msgError: true,
+          },
+        });
+        return;
+      } else if (!user) {
+        return res.status(201).json({
+          success: false,
+          message: {
+            msgBody: "E-mail không tồn tại",
+            msgError: true,
+          },
+        });
+      } else {
+        const valiToken = user.resetLink;
+
+        JWT.verify(valiToken, process.env.JWT_RESET_PASSWORD, (err) => {
+          if (err) {
+            if ((err.name && err.name === "TokenExpiredError") || !valiToken) {
+              const transporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                  user: "tranquocliem12c6@gmail.com",
+                  pass: process.env.pass,
+                },
+              });
+
+              const token = JWT.sign(
+                { _id: user._id },
+                process.env.JWT_RESET_PASSWORD,
+                { expiresIn: "10m" }
+              );
+
+              const mainOptions = {
+                // thiết lập đối tượng, nội dung gửi mail
+                // <p>Link: ${process.env.CLIENT_URL}/activate/${token}&150999</p>
+                from: "tranquocliem12c6@gmail.com",
+                to: email,
+                subject: "Đặt Lại Mật Khẩu",
+                html: `
+                              <h1>Vui Lòng Sử Dụng Đường Link Phía Dưới Để Kích Hoạt Tài Khoản</h1>
+                              <p>Link: <a href="http://localhost:3000/resetPassword/${token}&150999">Click Vào Đây!!!</a></p>
+                              <h3 style="color:red;">Lưu ý: Đường Link Này Chỉ Có Thời Hạn Là 10 Phút Sau Thời Hạn Sẽ Không Còn Hiệu Lực Nũa!!!</h3>
+                              <hr />
+                              <p>Xin gửi lời cảm ơn đến bạn!!!</p>
+                          `,
+              };
+
+              return user.updateOne({ resetLink: token }, (err) => {
+                if (err) {
+                  res.status(400).json({
+                    success: false,
+                    message: {
+                      msgBody: "Có lỗi xãy ra",
+                      msgError: true,
+                    },
+                  });
+                  return;
+                } else {
+                  transporter.sendMail(mainOptions, (err) => {
+                    if (err) {
+                      res.status(400).json({
+                        success: false,
+                        message: {
+                          msgBody: "Có lỗi khi gửi mail",
+                          msgError: true,
+                        },
+                        err,
+                      });
+                      return;
+                    } else {
+                      return res.status(200).json({
+                        success: true,
+                        message: {
+                          msgBody: "Thành công!",
+                          msgError: false,
+                        },
+                      });
+                    }
+                  });
+                }
+              });
+            } else {
+              res.status(400).json({
+                success: false,
+                message: {
+                  msgBody: "Có lỗi khi xử lý",
+                  msgError: true,
+                },
+              });
+            }
+          } else if (!err || valiToken) {
+            return res.status(201).json({
+              success: false,
+              message: {
+                msgBody:
+                  "E-mail này đã được gửi rồi. Nếu có vần đề có thể gửi lại sau 10 phút",
+                msgError: true,
+              },
+            });
+          }
+        });
+      }
+    });
+  }
+});
+
+//reset lại mật khẩu đã quên
+accRouter.post("/resetPass", (req, res) => {
+  const { resetLink, newPassword } = req.body;
+
+  if (newPassword && resetLink) {
+    JWT.verify(resetLink, process.env.JWT_RESET_PASSWORD, (err) => {
+      if (err) {
+        res.status(400).json({
+          success: false,
+          message: {
+            msgBody: "Có lỗi với mã",
+            msgError: true,
+          },
+          err,
+        });
+        return;
+      } else {
+        Account.findOne({ resetLink }, (err, user) => {
+          if (err) {
+            res.status(400).json({
+              success: false,
+              message: {
+                msgBody: "Có lỗi khi tìm kiếm tài khoản này",
+                msgError: true,
+              },
+            });
+            return;
+          } else if (!user) {
+            res.status(201).json({
+              success: false,
+              message: {
+                msgBody: "Đường link không còn tồn tại",
+                msgError: true,
+              },
+            });
+            return;
+          } else {
+            const updatePassword = {
+              password: newPassword,
+              resetLink: "",
+            };
+            user = lodash.extend(user, updatePassword);
+            user.save((err) => {
+              if (err) {
+                res.status(400).json({
+                  success: false,
+                  message: {
+                    msgBody: "Đặt lại mật khẩu không thành công",
+                    msgError: true,
+                  },
+                  err,
+                });
+                return;
+              } else {
+                return res.status(200).json({
+                  success: true,
+                  message: {
+                    msgBody: "Đã đặt lại mật khẩu thành công!",
+                    msgError: false,
+                  },
+                });
+              }
+            });
+          }
+        });
+      }
+    });
+  } else {
+    res.status(400).json({
+      success: false,
+      message: {
+        msgBody: "Lỗi!!! không đủ thông tin",
+        msgError: true,
+      },
+    });
+    return;
+  }
+});
+
+//kiểm tra mã token
+accRouter.post("/examJWT", (req, res) => {
+  const { token } = req.body;
+
+  //token hết hạn
+  //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZmYxNDgyYTZlYzAzZjM0ZWM1YjUwNmEiLCJpYXQiOjE2MDk3MjYzMjMsImV4cCI6MTYwOTcyNjkyM30.Qmnrq9UFggNM4l8DO-I-kOa3UKeiS1YXmi8Bp2Fbqtw
+
+  JWT.verify(token, process.env.JWT_RESET_PASSWORD, (err, decoded) => {
+    if (err) {
+      if ((err.name && err.name === "TokenExpiredError") || !token) {
+        res.status(400).json({
+          message: {
+            msgBody: "Hết hạn",
+            msgError: true,
+          },
+          err,
+        });
+        return;
+      } else {
+        res.status(400).json({
+          message: {
+            msgBody: "Có lỗi",
+            msgError: true,
+          },
+          err,
+        });
+        return;
+      }
+    } else {
+      res.status(200).json({
+        message: {
+          msgBody: "Ok!!!",
+          msgError: false,
+        },
+        decoded,
+      });
+    }
+  });
+});
+
 //đổi mật khẩu tài khoản
 accRouter.post(
   "/changePass",
@@ -312,13 +558,13 @@ accRouter.post(
           });
         }
         //cần nhập pass củ và so sánh với pass với csdl
-        bcrypt.compare(
-          old_Password,
-          req.user.password,
-          function (err, isMatch) {
-            console.log(err);
-          }
-        );
+        // bcrypt.compare(
+        //   old_Password,
+        //   req.user.password,
+        //   function (err, isMatch) {
+        //     console.log(err);
+        //   }
+        // );
         bcrypt.compare(
           old_Password,
           req.user.password,
