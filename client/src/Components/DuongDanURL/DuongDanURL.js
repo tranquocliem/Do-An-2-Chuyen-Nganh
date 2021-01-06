@@ -23,6 +23,8 @@ import CreateProfile from "../Profile/CreateProfile";
 import UpdateProfile from "../Profile/UpdateProfile";
 import FinalRegister from "../Register/FinalRegister";
 import GoToEmail from "../Register/GoToEmail";
+import ForgetPass from "../ForgetPass/ForgetPass";
+import ResetPass from "../ForgetPass/ResetPass";
 
 // import { Container } from './styles';
 
@@ -36,6 +38,11 @@ function DuongDanURL() {
       <UnPrivateRouter
         path="/activate/:token&150999"
         component={FinalRegister}
+      />
+      <UnPrivateRouter path="/forgetPass" component={ForgetPass} />
+      <UnPrivateRouter
+        path="/resetPassword/:token&150999"
+        component={ResetPass}
       />
       <PrivateRouter
         path="/postRecruitment"

@@ -126,7 +126,6 @@ function Register(props) {
         }
         if (!message.msgError) {
           resetForm();
-          console.log(user);
           timeID = setTimeout(() => {
             props.history.push("/e-mail/activate");
           }, 2500);
@@ -311,7 +310,12 @@ function Register(props) {
                 </div>
                 <div className="form-group">
                   <p className="text-register">
-                    Bạn đã có tài khoản <a href="/login">Đăng Nhập</a>
+                    Bạn đã có tài khoản - <a href="/login">Đăng Nhập</a>
+                  </p>
+                </div>
+                <div className="form-group">
+                  <p className="text-login">
+                    Bạn đã <a href="/forgetPass">quên mật khẩu</a>
                   </p>
                 </div>
               </form>

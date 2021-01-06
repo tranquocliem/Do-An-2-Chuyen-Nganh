@@ -452,7 +452,12 @@ accRouter.post("/resetPass", (req, res) => {
               password: newPassword,
               resetLink: "",
             };
+            // hàm extend() giúp overwrite lại user
+            // vd: user = {_id:"1",username:"liem",password:"123456",resetLink:"gheyf"}
+            // extend({_id:"1",username:"liem",password:"123456",resetLink:"gheyf"},{password: 1234567,resetLink: "",})
+            // => user = {_id:"1",username:"liem",password:"1234567",resetLink:""}
             user = lodash.extend(user, updatePassword);
+            //hàm save nếu _id đã tồn tại sẽ update ngược lại thì sẽ là insert
             user.save((err) => {
               if (err) {
                 res.status(400).json({

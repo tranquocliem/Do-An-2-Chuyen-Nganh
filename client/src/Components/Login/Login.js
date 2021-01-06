@@ -102,7 +102,12 @@ function Login(props) {
                 </div>
                 <div className="form-group">
                   <p className="text-login">
-                    Bạn chưa có tài khoản <a href="/register">Đăng Ký</a>
+                    Bạn chưa có tài khoản - <a href="/register">Đăng Ký</a>
+                  </p>
+                </div>
+                <div className="form-group">
+                  <p className="text-login">
+                    Bạn đã <a href="/forgetPass">quên mật khẩu</a>
                   </p>
                 </div>
               </form>

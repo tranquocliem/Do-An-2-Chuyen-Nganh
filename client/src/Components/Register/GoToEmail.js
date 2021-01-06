@@ -16,7 +16,7 @@ function GoToEmail() {
               <h5 className="card-title">Đã Gửi Link Thành Công !!!</h5>
               <p className="card-text">
                 Hệ thống đã gửi mail đến bạn. Vui lòng đến mail của bạn để nhận
-                đường link và hoàn tất quá trình đăng ký tài khoản.
+                đường link và hoàn tất quá trình.
               </p>
               <a href="https://mail.google.com/" className="btn btn-primary">
                 <i className="fas fa-envelope"></i> Đến E-Mail Của Bạn

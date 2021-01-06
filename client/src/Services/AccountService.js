@@ -57,6 +57,40 @@ export default {
         };
       });
   },
+  forgetPass: (email) => {
+    return axios
+      .post("/api/account/forgetPass", email)
+      .then((res) => {
+        return res.data;
+      })
+      .catch((err) => {
+        console.log(err);
+        return {
+          message: {
+            msgBody: "Có lỗi khi gửi mail",
+            msgError: true,
+          },
+          err,
+        };
+      });
+  },
+  resetPass: (variable) => {
+    return axios
+      .post("/api/account/resetPass", variable)
+      .then((res) => {
+        return res.data;
+      })
+      .catch((err) => {
+        console.log(err);
+        return {
+          message: {
+            msgBody: "Có lỗi khi gửi đặt lại mật khẩu",
+            msgError: true,
+          },
+          err,
+        };
+      });
+  },
   logout: () => {
     return axios.get("/api/account/logout").then((res) => {
       return res.data;
