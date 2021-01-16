@@ -6,7 +6,18 @@ const JWT = require("jsonwebtoken");
 const Account = require("../models/Account");
 const bcrypt = require("bcrypt");
 const lodash = require("lodash");
+const { google } = require("googleapis");
 const nodemailer = require("nodemailer");
+
+const oAuth2Client = new google.auth.OAuth2(
+  process.env.CLIENT_ID,
+  process.env.CLIENT_SECRET,
+  process.env.REDIRECT_URL
+);
+
+oAuth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
+
+const accessToken = oAuth2Client.getAccessToken();
 
 //gửi mail để xác thực
 accRouter.post("/sendMail", (req, res) => {
@@ -50,11 +61,19 @@ accRouter.post("/sendMail", (req, res) => {
         const transporter = nodemailer.createTransport({
           service: "gmail",
           auth: {
+            type: "OAuth2",
             user: "tranquocliem12c6@gmail.com",
-            pass: process.env.pass,
+            clientId: process.env.CLIENT_ID,
+            clientSecret: process.env.CLIENT_SECRET,
+            refreshToken: process.env.REFRESH_TOKEN,
+            accessToken: accessToken,
           },
+          // service: "gmail",
+          // auth: {
+          //   user: "tranquocliem12c6@gmail.com",
+          //   pass: process.env.pass,
+          // },
         });
-
         const token = JWT.sign(
           {
             username,
@@ -66,7 +85,6 @@ accRouter.post("/sendMail", (req, res) => {
             expiresIn: "10m",
           }
         );
-
         const mainOptions = {
           // thiết lập đối tượng, nội dung gửi mail
           // <p>Link: ${process.env.CLIENT_URL}/activate/${token}&150999</p>
@@ -81,9 +99,7 @@ accRouter.post("/sendMail", (req, res) => {
                         <p>Xin gửi lời cảm ơn đến bạn!!!</p>
                     `,
         };
-
         // console.log(token);
-
         transporter.sendMail(mainOptions, (err) => {
           if (err) {
             res.status(400).json({
@@ -326,8 +342,12 @@ accRouter.post("/forgetPass", (req, res) => {
               const transporter = nodemailer.createTransport({
                 service: "gmail",
                 auth: {
+                  type: "OAuth2",
                   user: "tranquocliem12c6@gmail.com",
-                  pass: process.env.pass,
+                  clientId: process.env.CLIENT_ID,
+                  clientSecret: process.env.CLIENT_SECRET,
+                  refreshToken: process.env.REFRESH_TOKEN,
+                  accessToken: accessToken,
                 },
               });
 
@@ -344,7 +364,7 @@ accRouter.post("/forgetPass", (req, res) => {
                 to: email,
                 subject: "Đặt Lại Mật Khẩu",
                 html: `
-                              <h1>Vui Lòng Sử Dụng Đường Link Phía Dưới Để Kích Hoạt Tài Khoản</h1>
+                              <h1>Vui Lòng Sử Dụng Đường Link Phía Dưới Để Đặt Lại Mật Khẩu</h1>
                               <p>Link: <a href="http://localhost:3000/resetPassword/${token}&150999">Click Vào Đây!!!</a></p>
                               <h3 style="color:red;">Lưu ý: Đường Link Này Chỉ Có Thời Hạn Là 10 Phút Sau Thời Hạn Sẽ Không Còn Hiệu Lực Nũa!!!</h3>
                               <hr />
