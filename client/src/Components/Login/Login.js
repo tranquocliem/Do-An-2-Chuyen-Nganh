@@ -70,7 +70,7 @@ function Login(props) {
                       className="form-control"
                       name="username"
                       type="text"
-                      placeholder="Username"
+                      placeholder="Username hoặc Email"
                       onChange={onChange}
                       autoFocus={true}
                     />

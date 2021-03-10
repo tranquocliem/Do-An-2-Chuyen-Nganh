@@ -212,7 +212,10 @@ accRouter.post("/register", (req, res) => {
   }
 });
 
-//tạo tài khoản cho loại candidate và recruiter (không cần gửi xác thực mail)
+//tạo tài khoản cho loại candidate và recruiter (không cần gửi xác thực mail sử dung cho localhost)
+/**
+ * 
+ *
 // accRouter.post("/register", (req, res) => {
 //   const { email, username, password, role } = req.body;
 //   Account.findOne(
@@ -262,9 +265,9 @@ accRouter.post("/register", (req, res) => {
 //     }
 //   );
 // });
+ */
 
 //login
-
 const signToken = (userID) => {
   return JWT.sign(
     {

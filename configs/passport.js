@@ -29,14 +29,17 @@ passport.use(
   )
 );
 
-//Authentication sử dụng username và password
+//Authentication sử dụng username hoặc email và password
 passport.use(
   new LocalStrategy((username, password, done) => {
-    Account.findOne({ username }, (err, user) => {
-      if (err) return done(err);
-      //không tồn tại
-      if (!user) return done(null, false);
-      user.comparePassword(password, done);
-    });
+    Account.findOne(
+      { $or: [{ username }, { email: username }] },
+      (err, user) => {
+        if (err) return done(err);
+        //không tồn tại
+        if (!user) return done(null, false);
+        user.comparePassword(password, done);
+      }
+    );
   })
 );
