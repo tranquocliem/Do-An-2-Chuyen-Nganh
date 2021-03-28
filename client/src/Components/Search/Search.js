@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "./index.css";
-import { Helmet } from "react-helmet";
 import RecruitmentItem from "./RecruitmentItem";
 import RecruimentService from "../../Services/RecruimentService";
 import CityService from "../../Services/CityService";
 import CareerService from "../../Services/CareerService";
 import ListCity from "./ListCity";
 import ListCareer from "./ListCareer";
+import MyHelmet from "../Helmet/MyHelmet";
 
 function Search(props) {
   const [recruitmentSearch, setrecruitmentSearch] = useState([]);
@@ -115,9 +115,7 @@ function Search(props) {
 
   return (
     <>
-      <Helmet>
-        <title>Tìm Kiếm</title>
-      </Helmet>
+      <MyHelmet title="Tìm kiếm" description="Tìm kiếm việc làm online" />
       <section className="page-section my-3 search">
         <div className="container">
           <h2 className="page-section-heading text-center text-uppercase text-secondary mb-0">

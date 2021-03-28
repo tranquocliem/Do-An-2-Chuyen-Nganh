@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "./index.css";
-import { Helmet } from "react-helmet";
 import RecruimentService from "../../Services/RecruimentService";
 import RecruitmentItem from "./RecruitmentItem";
 import CityService from "../../Services/CityService";
 import CareerService from "../../Services/CareerService";
+import MyHelmet from "../Helmet/MyHelmet";
+
 function SearchCityOrCareer(props) {
   const id = props.match.params.id;
   const [reacruitment, setRecruitment] = useState("");
@@ -85,13 +86,17 @@ function SearchCityOrCareer(props) {
 
   return (
     <>
-      <Helmet>
+      <MyHelmet
+        title={city ? city.name : career ? career.name : null}
+        description={`Tìm kiếm việc làm ở ${city ? city.name : null}`}
+      />
+      {/* <Helmet>
         {city ? (
           <title>{city.name}</title>
         ) : career ? (
           <title>{career.name}</title>
         ) : null}
-      </Helmet>
+      </Helmet> */}
       <section className="page-section my-3 search">
         <div className="container" style={{ minHeight: "535px" }}>
           {!city && !career ? (

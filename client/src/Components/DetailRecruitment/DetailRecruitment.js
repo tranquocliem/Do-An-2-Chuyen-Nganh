@@ -12,6 +12,7 @@ import ProfileService from "../../Services/ProfileService";
 import { cleanBadWord, badWordFilter } from "../../Shared/filterBadWords";
 import { Link } from "react-router-dom";
 import chuyenDoiURL from "../../Shared/ChuyenDoiURL";
+import MyHelmet from "../Helmet/MyHelmet";
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -208,7 +209,7 @@ function DetailRecruitment(props) {
     }
   }, [recruitment]);
 
-  console.log(activeStyle);
+  // console.log(activeStyle);
 
   if (
     (recruitment ? recruitment.img && recruitment.status : null) ||
@@ -217,9 +218,10 @@ function DetailRecruitment(props) {
   ) {
     return (
       <>
-        <Helmet>
-          <title>{recruitment.title ? recruitment.title : "Loading..."}</title>
-        </Helmet>
+        <MyHelmet
+          title={recruitment.title ? recruitment.title : "Loading..."}
+          description={recruitment.title}
+        />
         <section className="page-section my-3 search">
           <div
             className={
@@ -403,9 +405,7 @@ function DetailRecruitment(props) {
   } else if (recruitment ? recruitment.status === false : null) {
     return (
       <>
-        <Helmet>
-          <title>Loading...</title>
-        </Helmet>
+        <MyHelmet title="Loading..." />
         <section className="page-section my-3">
           <div className="container">
             <div className="row">

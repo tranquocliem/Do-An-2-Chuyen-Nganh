@@ -5,6 +5,7 @@ import "moment/locale/vi";
 import "react-image-gallery/styles/css/image-gallery.css";
 import ImageGallery from "react-image-gallery";
 import { Link } from "react-router-dom";
+import chuyenDoiURL from "../../Shared/ChuyenDoiURL";
 
 function RecruitmentItem(props) {
   const render = props.recruitment
@@ -35,7 +36,7 @@ function RecruitmentItem(props) {
               <div className="card-body mt-2">
                 <h5 className="card-title cvMN-item-sumary">
                   <Link
-                    to={`/recruitment/${item._id}`}
+                    to={`/recruitment/${chuyenDoiURL(item.title)}/${item._id}`}
                     className="cv-title text-primary"
                   >
                     {item.title}
@@ -49,7 +50,13 @@ function RecruitmentItem(props) {
                   <span className="mx-2"></span>
                   <span>
                     <i className="fas fa-map-marker-alt px-1"></i>
-                    {item.city.name}
+                    <Link
+                      to={`/${item.city._id}/search=${chuyenDoiURL(
+                        item.city.name
+                      )}`}
+                    >
+                      {item.city.name}
+                    </Link>
                   </span>
                   <br />
                   <span>

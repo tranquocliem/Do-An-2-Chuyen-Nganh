@@ -1,14 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./index.css";
-
-import { Helmet } from "react-helmet";
+import MyHelmet from "../Helmet/MyHelmet";
 
 function NotFound(props) {
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   return (
     <>
-      <Helmet>
-        <title>Not Found</title>
-      </Helmet>
+      <MyHelmet title="Not Found" description="Trang này không tồn tại" />
 
       <section className="page-section my-3 search">
         <div className="container">

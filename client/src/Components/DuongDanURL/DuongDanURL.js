@@ -55,7 +55,7 @@ function DuongDanURL() {
         component={UpdateRecruitment}
       />
       <Route path="/search" component={Search} />
-      <Route path="/recruitment/:id" component={DetailRecruitment} />
+      <Route path="/recruitment/:title/:id" component={DetailRecruitment} />
       <PrivateRouter
         path="/myRecruitment/:id-page=:page"
         roles={["recruiter", "admin", "spadmin"]}

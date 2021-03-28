@@ -3,14 +3,15 @@ import Header from "../Header/Header";
 import CVNoiBat from "../CVNoiBat/CVNoiBat";
 import CVMoiNhat from "../CVMoiNhat/CVMoiNhat";
 import "./index.css";
-import { Helmet } from "react-helmet";
+import MyHelmet from "../Helmet/MyHelmet";
 
 function Home() {
   return (
     <>
-      <Helmet>
-        <title>Trang Chủ - Tuyển Dụng</title>
-      </Helmet>
+      <MyHelmet
+        title="Tuyển Dụng Miền Nam - Trang Chủ"
+        description="Tìm kiếm việc làm online - không có gì quan trọng hơn là tuyển dụng và phát triển các tài năng"
+      />
       <div className="main">
         <Header />
         <CVNoiBat />

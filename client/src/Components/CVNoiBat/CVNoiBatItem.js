@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import chuyenDoiURL from "../../Shared/ChuyenDoiURL";
 
 function CVNoiBatItem(props) {
+  console.log(props);
   let luong = props.recruitment.salary;
   const dateCre = moment(props.recruitment.createdAt).format(
     "DD/MM/YYYY h:mm:ss"
@@ -78,7 +79,9 @@ function CVNoiBatItem(props) {
           <div className="card-body mt-2">
             <h5 className="card-title cvNB-item-sumary">
               <Link
-                to={`/recruitment/${props.recruitment._id}`}
+                to={`/recruitment/${chuyenDoiURL(props.recruitment.title)}/${
+                  props.recruitment._id
+                }`}
                 className="cvNB-title"
               >
                 {props.recruitment.title}

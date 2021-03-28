@@ -1437,6 +1437,8 @@ recruitmentRouter.post("/searchRecruitment", (req, res) => {
     }
   )
     .sort({ createdAt: -1 })
+    .populate("city", "name")
+    .populate("career", "name")
     .skip(skip)
     .limit(3);
 });
