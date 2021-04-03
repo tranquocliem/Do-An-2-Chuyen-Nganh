@@ -4,6 +4,7 @@ import "moment/locale/vi";
 import { Link } from "react-router-dom";
 import swal from "sweetalert";
 import RecruimentService from "../../Services/RecruimentService";
+import chuyenDoiURL from "../../Shared/ChuyenDoiURL";
 
 function MyTableRecruitment(props) {
   const dateCre = moment(props.recruitment.createdAt).format(
@@ -55,7 +56,9 @@ function MyTableRecruitment(props) {
               <button type="button" className="btn btn-info mx-2 mb-3">
                 <Link
                   style={{ color: "whitesmoke", textDecoration: "none" }}
-                  to={`/recruitment/${props.recruitment._id}`}
+                  to={`/recruitment/${chuyenDoiURL(props.recruitment.title)}/${
+                    props.recruitment._id
+                  }`}
                 >
                   Xem
                 </Link>

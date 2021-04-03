@@ -6,6 +6,7 @@ import UpdateSelects from "./UpdateSelects";
 import { AuthContext } from "../../Context/AuthContext";
 import RecruimentService from "../../Services/RecruimentService";
 import Message from "../Message/Message";
+import chuyenDoiURL from "../../Shared/ChuyenDoiURL";
 
 function UpdateRecruitment(props) {
   const [hacker, setHacker] = useState(false);
@@ -160,7 +161,7 @@ function UpdateRecruitment(props) {
       if (data.success) {
         setMessage(message);
         setTimeout(() => {
-          props.history.push(`/recruitment/${id}`);
+          props.history.push(`/recruitment/${chuyenDoiURL(title)}/${id}`);
         }, 2000);
       } else {
         setMessage(message);

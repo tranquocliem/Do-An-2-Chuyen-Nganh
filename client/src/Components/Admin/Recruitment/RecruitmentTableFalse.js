@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { badWordFilter } from "../../../Shared/filterBadWords";
 import Tippy from "@tippy.js/react";
 import "tippy.js/dist/tippy.css";
+import chuyenDoiURL from "../../../Shared/ChuyenDoiURL";
 
 function RecruitmentTableFalse(props) {
   const dateCre = moment(props.recruitmentFalse.createdAt).format(
@@ -103,7 +104,9 @@ function RecruitmentTableFalse(props) {
                 <Link
                   target="_blank"
                   style={{ color: "whitesmoke", textDecoration: "none" }}
-                  to={`/recruitment/${props.recruitmentFalse._id}`}
+                  to={`/recruitment/${chuyenDoiURL(
+                    props.recruitmentFalse.title
+                  )}/${props.recruitmentFalse._id}`}
                 >
                   Xem
                 </Link>

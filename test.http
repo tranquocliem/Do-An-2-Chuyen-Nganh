@@ -1,0 +1,55 @@
+@baseURL = http://localhost:8000/api
+
+# Account
+
+# @name Login
+POST {{baseURL}}/account/login
+Content-Type: application/json
+
+{
+    "username":"tuyendung2",
+    "password":"123456"
+}
+
+###
+
+# @name Logout
+GET {{baseURL}}/account/logout
+
+###
+
+# @name Authenticated
+GET {{baseURL}}/account/authenticated
+
+###
+
+# Recruiment
+
+# @name getRecruitment
+POST {{baseURL}}/recruitment/getRecruitment
+Content-Type: application/json
+
+{
+    "skip":0
+}
+
+###
+
+# @name getFavouriteRecruitment
+GET {{baseURL}}/recruitment/getFavouriteRecruitment
+
+###
+
+# @name getMyRecruitment
+GET {{baseURL}}/recruitment/getMyRecruitment?page=1
+
+###
+
+# @name filter
+POST {{baseURL}}/recruitment/filterRecruitment
+Content-Type: application/json
+
+{
+    "city": "5f9543b7acc5932b200baf14",
+    "salary": "10000000"
+}

@@ -2,14 +2,27 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const JwtStratery = require("passport-jwt").Strategy;
 const Account = require("../models/Account");
+const NodeRSA = require("node-rsa");
+const fs = require("fs");
+const path = require("path");
 
 //lấy mã token từ trình duyệt được lưu trong cookies
-const cookieExtractor = (req) => {
+const cookieExtractor = (req, res) => {
   let token = null;
+  let tokenJWT = null;
   if (req && req.cookies) {
-    token = req.cookies["access_token"];
+    token = req.cookies["temp"];
+    if (token) {
+      try {
+        private_key = fs.readFileSync(
+          path.resolve(__dirname, "./privatekey.key")
+        );
+        let key_private = new NodeRSA(private_key);
+        tokenJWT = key_private.decrypt(token, process.env.PRIVATE_KEY);
+      } catch (error) {}
+    }
   }
-  return token;
+  return tokenJWT;
 };
 
 //Authorization
@@ -17,7 +30,7 @@ passport.use(
   new JwtStratery(
     {
       jwtFromRequest: cookieExtractor,
-      secretOrKey: "QuocLiem",
+      secretOrKey: process.env.SECRET_KEY,
     },
     (payload, done) => {
       Account.findById({ _id: payload.sub }, (err, user) => {

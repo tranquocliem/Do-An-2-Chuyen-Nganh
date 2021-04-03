@@ -36,7 +36,7 @@ function Footer() {
               <p className="lead mb-0">
                 Giảng viên hướng dẫn: Võ Văn Phúc
                 <br />
-                Nhóm thực hiện: Quốc Liêm, Nhật Linh
+                Người thực hiện: Trần Quốc Liêm
               </p>
             </div>
           </div>
@@ -45,7 +45,7 @@ function Footer() {
       {/* Copyright Section*/}
       <div className="copyright py-4 text-center text-white">
         <div className="container">
-          <small>Copyright © Your Website 2020</small>
+          <small>© 2021 TRẦN QUỐC LIÊM</small>
         </div>
       </div>
     </>

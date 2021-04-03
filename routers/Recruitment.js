@@ -199,7 +199,7 @@ recruitmentRouter.post(
               );
               return res.status(200).json({
                 message: {
-                  msgBody: "Thêm dữ liệu thành công",
+                  msgBody: "Đăng tin tuyển dụng thành công",
                   msgError: false,
                 },
                 result,
@@ -1441,6 +1441,49 @@ recruitmentRouter.post("/searchRecruitment", (req, res) => {
     .populate("career", "name")
     .skip(skip)
     .limit(3);
+});
+
+//filter
+recruitmentRouter.post("/filterRecruitment", (req, res) => {
+  const filters = {};
+  const city = req.body.city ? req.body.city : false;
+  const salary = req.body.salary ? req.body.salary : false;
+
+  // const city = "Cần Thơ";
+  // const salary = 1000;
+
+  if (city && salary) {
+    Object.assign(filters, { city, salary });
+  } else if (city && !salary) {
+    Object.assign(filters, { city });
+  } else if (!city && salary) {
+    Object.assign(filters, { salary });
+  } else if (!city && !salary) {
+    Object.assign(filters, {});
+  }
+
+  console.log(filters);
+
+  Recruitment.find(filters, (err, recruitment) => {
+    if (err) {
+      return res.status(400).json({
+        message: {
+          msgBody: "Lỗi!!!",
+          msgError: true,
+        },
+        err,
+      });
+    } else {
+      return res.status(200).json({
+        message: {
+          msgBody: "Thành công",
+          msgError: false,
+        },
+        total: recruitment.length,
+        recruitment,
+      });
+    }
+  }).populate("city", "name");
 });
 
 module.exports = recruitmentRouter;

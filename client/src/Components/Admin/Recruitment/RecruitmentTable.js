@@ -2,6 +2,7 @@ import React from "react";
 import moment from "moment";
 import "moment/locale/vi";
 import { Link } from "react-router-dom";
+import chuyenDoiURL from "../../../Shared/ChuyenDoiURL";
 
 function RecruitmentTable(props) {
   const dateCre = moment(props.recruitmentTrue.createdAt).format(
@@ -32,7 +33,9 @@ function RecruitmentTable(props) {
                 <Link
                   target="_blank"
                   style={{ color: "whitesmoke", textDecoration: "none" }}
-                  to={`/recruitment/${props.recruitmentTrue._id}`}
+                  to={`/recruitment/${chuyenDoiURL(
+                    props.recruitmentTrue.title
+                  )}/${props.recruitmentTrue._id}`}
                 >
                   Xem
                 </Link>

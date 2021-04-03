@@ -8,20 +8,23 @@ const bcrypt = require("bcrypt");
 const lodash = require("lodash");
 const { google } = require("googleapis");
 const nodemailer = require("nodemailer");
-
-const oAuth2Client = new google.auth.OAuth2(
-  process.env.CLIENT_ID,
-  process.env.CLIENT_SECRET,
-  process.env.REDIRECT_URL
-);
-
-oAuth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
-
-const accessToken = oAuth2Client.getAccessToken();
+const NodeRSA = require("node-rsa");
+const fs = require("fs");
+const path = require("path");
 
 //gửi mail để xác thực
-accRouter.post("/sendMail", (req, res) => {
+accRouter.post("/sendMail", async (req, res) => {
   const { email, username, role } = req.body;
+
+  const oAuth2Client = new google.auth.OAuth2(
+    process.env.CLIENT_ID,
+    process.env.CLIENT_SECRET,
+    process.env.REDIRECT_URL
+  );
+
+  oAuth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
+
+  const accessToken = await oAuth2Client.getAccessToken();
 
   Account.findOne(
     { $or: [{ username: username }, { email: email }] },
@@ -274,7 +277,7 @@ const signToken = (userID) => {
       iss: "QuocLiem",
       sub: userID,
     },
-    "QuocLiem",
+    process.env.SECRET_KEY,
     { expiresIn: "1d" }
   );
 };
@@ -285,8 +288,17 @@ accRouter.post(
   (req, res) => {
     if (req.isAuthenticated()) {
       const { _id, username, role, status } = req.user;
-      const token = signToken(_id);
-      res.cookie("access_token", token, { httpOnly: true, sameSite: true });
+      let token = signToken(_id);
+      public_key = fs.readFileSync(
+        path.resolve(__dirname, "../configs/publickey.key")
+      );
+      let key_public = new NodeRSA(public_key);
+      let end = key_public.encrypt(token, process.env.PUBLIC_KEY);
+      token = end;
+      res.cookie("temp", token, {
+        httpOnly: true,
+        sameSite: true,
+      });
       res
         .status(200)
         .json({ isAuthenticated: true, user: { _id, username, role, status } });
@@ -299,7 +311,7 @@ accRouter.get(
   "/logout",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    res.clearCookie("access_token");
+    res.clearCookie("temp");
     res.json({ user: { username: "", role: "" }, success: true });
   }
 );
@@ -661,5 +673,31 @@ accRouter.get(
     });
   }
 );
+
+//test
+accRouter.get("/hash", (req, res) => {
+  let message = "Tran Quoc Liem";
+  let plk = fs.readFileSync(
+    path.resolve(__dirname, "../configs/publickey.key")
+  );
+  let pvk = fs.readFileSync(
+    path.resolve(__dirname, "../configs/privatekey.key")
+  );
+  // const key = new NodeRSA({ b: 1024 });
+  // let public_key = key.exportKey("public");
+  // let private_key = key.exportKey("private");
+
+  public_key = plk;
+
+  private_key = pvk;
+
+  let key_private = new NodeRSA(private_key);
+  let key_public = new NodeRSA(public_key);
+
+  let end = key_public.encrypt(message, "base64");
+  let ded = key_private.decrypt(end, "utf8");
+
+  return res.status(200).json({ encrypt: end, decrypt: ded });
+});
 
 module.exports = accRouter;
