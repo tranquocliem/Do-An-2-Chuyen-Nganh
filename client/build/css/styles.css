@@ -10502,7 +10502,6 @@ a.text-dark:focus {
     Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   font-weight: 700;
-
 }
 #mainNav .navbar-brand {
   color: #fff;
@@ -10638,8 +10637,9 @@ a.text-dark:focus {
 
 .floating-label-form-group {
   position: relative;
-  border-bottom: 1px solid #e5e7eb79;
+  border-bottom: 1px solid #9c9fa379;
 }
+
 .floating-label-form-group input,
 .floating-label-form-group textarea {
   font-size: 1.5em;
@@ -10702,8 +10702,6 @@ form .row:first-child .floating-label-form-group {
   font-size: 13px;
 }
 
-#pageSubmenu li:hover{
+#pageSubmenu li:hover {
   text-decoration: underline;
 }
-
-
