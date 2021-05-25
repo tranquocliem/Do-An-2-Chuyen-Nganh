@@ -53,6 +53,7 @@ recruitmentRouter.post(
             msgBody: "Upload lỗi!!! không hổ trợ định dạng này",
             msgError: true,
           },
+          err,
         });
       }
       return res.json({

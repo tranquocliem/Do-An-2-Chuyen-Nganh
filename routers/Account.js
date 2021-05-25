@@ -11,42 +11,43 @@ const nodemailer = require("nodemailer");
 const NodeRSA = require("node-rsa");
 const fs = require("fs");
 const path = require("path");
+const sgMail = require("@sendgrid/mail");
 
 //gửi mail để xác thực
 accRouter.post("/sendMail", async (req, res) => {
   const { email, username, role } = req.body;
 
-  const oAuth2Client = new google.auth.OAuth2(
-    process.env.CLIENT_ID,
-    process.env.CLIENT_SECRET,
-    process.env.REDIRECT_URL
-  );
+  // const oAuth2Client = new google.auth.OAuth2(
+  //   process.env.CLIENT_ID,
+  //   process.env.CLIENT_SECRET,
+  //   process.env.REFRESH_TOKEN,
+  //   process.env.REDIRECT_URL
+  // );
 
-  oAuth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
+  // oAuth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
 
-  const accessToken = await oAuth2Client.getAccessToken();
+  // const accessToken = await oAuth2Client.getAccessToken();
 
   Account.findOne(
     { $or: [{ username: username }, { email: email }] },
-    (err, user) => {
+    async (err, user) => {
       if (err) {
-        res.status(400).json({
+        return res.status(400).json({
           message: {
             msgBody: "Có lỗi khi tìm kiếm với CSDL 1",
             msgError: true,
           },
         });
-        return;
       } else if (user) {
         if (user.username === username) {
-          res.status(201).json({
+          return res.status(201).json({
             message: {
               msgBody: "Tên đăng nhập đã tồn tại",
               msgError: true,
             },
           });
         } else {
-          res.status(201).json({
+          return res.status(201).json({
             message: {
               msgBody: "Email đã tồn tại",
               msgError: true,
@@ -54,29 +55,29 @@ accRouter.post("/sendMail", async (req, res) => {
           });
         }
       } else if (role === "spadmin" || role === "admin") {
-        res.status(201).json({
+        return res.status(201).json({
           message: {
             msgBody: "Không có loại tài khoản này",
             msgError: true,
           },
         });
       } else {
-        const transporter = nodemailer.createTransport({
-          service: "gmail",
-          auth: {
-            type: "OAuth2",
-            user: "tranquocliem12c6@gmail.com",
-            clientId: process.env.CLIENT_ID,
-            clientSecret: process.env.CLIENT_SECRET,
-            refreshToken: process.env.REFRESH_TOKEN,
-            accessToken: accessToken,
-          },
-          // service: "gmail",
-          // auth: {
-          //   user: "tranquocliem12c6@gmail.com",
-          //   pass: process.env.pass,
-          // },
-        });
+        // const transporter = nodemailer.createTransport({
+        //   service: "gmail",
+        //   auth: {
+        //     type: "OAuth2",
+        //     user: "tranquocliem12c6@gmail.com",
+        //     clientId: process.env.CLIENT_ID,
+        //     clientSecret: process.env.CLIENT_SECRET,
+        //     refreshToken: process.env.REFRESH_TOKEN,
+        //     accessToken: accessToken,
+        //   },
+        //   // service: "gmail",
+        //   // auth: {
+        //   //   user: "tranquocliem12c6@gmail.com",
+        //   //   pass: process.env.pass,
+        //   // },
+        // });
         const token = JWT.sign(
           {
             username,
@@ -88,42 +89,82 @@ accRouter.post("/sendMail", async (req, res) => {
             expiresIn: "10m",
           }
         );
-        const mainOptions = {
-          // thiết lập đối tượng, nội dung gửi mail
-          // <p>Link: ${process.env.CLIENT_URL}/activate/${token}&150999</p>
-          from: "tranquocliem12c6@gmail.com",
-          to: email,
-          subject: "Kích Hoạt Tài Khoản",
-          html: `
+
+        try {
+          sgMail.setApiKey(process.env.API_KEY_SENDGRID);
+          const mainOptions = {
+            // thiết lập đối tượng, nội dung gửi mail
+            // <p>Link: ${process.env.CLIENT_URL}/activate/${token}&150999</p>
+            from: {
+              name: "Trần Quốc Liêm",
+              email: process.env.SENDER_SENDGRID,
+            },
+            to: email,
+            subject: "Kích Hoạt Tài Khoản",
+            html: `
                         <h1>Vui Lòng Sử Dụng Đường Link Phía Dưới Để Kích Hoạt Tài Khoản</h1>
                         <p>Link: <a href="http://localhost:3000/activate/${token}&150999">Click Vào Đây!!!</a></p>
                         <h3 style="color:red;">Lưu ý: Đường Link Này Chỉ Có Thời Hạn Là 10 Phút Sau Thời Hạn Sẽ Không Còn Hiệu Lực Nũa!!!</h3>
                         <hr />
                         <p>Xin gửi lời cảm ơn đến bạn!!!</p>
                     `,
-        };
+          };
+
+          await sgMail.send(mainOptions);
+
+          return res.status(200).json({
+            success: true,
+            message: {
+              msgBody: "Đăng ký thành công",
+              msgError: false,
+            },
+          });
+        } catch (error) {
+          return res.status(500).json({
+            success: false,
+            message: {
+              msgBody: "Có lỗi!!!",
+              msgError: true,
+            },
+          });
+        }
+        // const mainOptions = {
+        //   // thiết lập đối tượng, nội dung gửi mail
+        //   // <p>Link: ${process.env.CLIENT_URL}/activate/${token}&150999</p>
+        //   from: "tranquocliem12c6@gmail.com",
+        //   to: email,
+        //   subject: "Kích Hoạt Tài Khoản",
+        //   html: `
+        //                 <h1>Vui Lòng Sử Dụng Đường Link Phía Dưới Để Kích Hoạt Tài Khoản</h1>
+        //                 <p>Link: <a href="http://localhost:3000/activate/${token}&150999">Click Vào Đây!!!</a></p>
+        //                 <h3 style="color:red;">Lưu ý: Đường Link Này Chỉ Có Thời Hạn Là 10 Phút Sau Thời Hạn Sẽ Không Còn Hiệu Lực Nũa!!!</h3>
+        //                 <hr />
+        //                 <p>Xin gửi lời cảm ơn đến bạn!!!</p>
+        //             `,
+        // };
         // console.log(token);
-        transporter.sendMail(mainOptions, (err) => {
-          if (err) {
-            res.status(400).json({
-              success: false,
-              message: {
-                msgBody: "Có lỗi khi gửi mail",
-                msgError: true,
-              },
-              err,
-            });
-            return;
-          } else {
-            return res.status(200).json({
-              success: true,
-              message: {
-                msgBody: "Đăng ký thành công",
-                msgError: false,
-              },
-            });
-          }
-        });
+
+        // transporter.sendMail(mainOptions, (err) => {
+        //   if (err) {
+        //     res.status(400).json({
+        //       success: false,
+        //       message: {
+        //         msgBody: "Có lỗi khi gửi mail",
+        //         msgError: true,
+        //       },
+        //       err,
+        //     });
+        //     return;
+        //   } else {
+        //     return res.status(200).json({
+        //       success: true,
+        //       message: {
+        //         msgBody: "Đăng ký thành công",
+        //         msgError: false,
+        //       },
+        //     });
+        //   }
+        // });
       }
     }
   );

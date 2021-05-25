@@ -3,7 +3,6 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const bodyParser = require("body-parser");
 const path = require("path");
 const Account = require("./models/Account");
 
@@ -13,7 +12,6 @@ require("dotenv").config({
 
 app.use(cors());
 app.use(cookieParser());
-app.use(bodyParser.json());
 app.use(express.json());
 
 //kết nối với database
