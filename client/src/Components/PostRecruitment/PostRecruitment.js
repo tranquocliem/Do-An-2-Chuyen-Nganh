@@ -5,8 +5,9 @@ import QuillEditor from "../QuillEditor/QuillEditor";
 import ImageUpload from "./ImageUpload";
 import Selects from "./Selects";
 import { AuthContext } from "../../Context/AuthContext";
-import RecruimentService from "../../Services/RecruimentService";
 import Message from "../Message/Message";
+import { uploadImage } from "../../Shared/uploadIMG";
+import RecruimentService from "../../Services/RecruimentService";
 
 function PostRecruitment(props) {
   const [message, setMessage] = useState(false);
@@ -14,7 +15,7 @@ function PostRecruitment(props) {
   const [files, setFiles] = useState([]);
   const [maxSalary, setMaxSalary] = useState(false);
   const [description, setDescription] = useState("");
-  const [img, setImg] = useState(["uploads\\tuyen-dung.png"]);
+  // const [img, setImg] = useState(["uploads\\tuyen-dung.png"]);
   const [city, setCity] = useState("");
   const [career, setCareer] = useState("");
   const [email, setEmail] = useState("");
@@ -30,6 +31,7 @@ function PostRecruitment(props) {
   const [valicity, setvalicity] = useState(true);
   const [valicareer, setvalicareer] = useState(true);
   const [valiemail, setValiemail] = useState(true);
+  const [images, setImages] = useState([]);
 
   const onEditorChange = (value) => {
     setDescription(value);
@@ -43,7 +45,6 @@ function PostRecruitment(props) {
     setSalary("");
     setMaxSalary(false);
     setDescription("");
-    setImg([]);
     setEmail("");
     setSDT("");
     setContact("");
@@ -80,10 +81,6 @@ function PostRecruitment(props) {
     }
   };
 
-  const reLoadImages = (newImages) => {
-    setImg(newImages);
-  };
-
   const handleTitle = (e) => {
     e.preventDefault();
     setTitle(e.target.value);
@@ -112,27 +109,32 @@ function PostRecruitment(props) {
     setCareer(value);
   };
 
-  const variable = {
-    email: email,
-    sdt: sdt,
-    contact: contact,
-    salary: salary,
-    title: title,
-    description: description,
-    img: img.length < 1 ? "" : img,
-    writer: user._id,
-    city: city.value,
-    career: career.value,
-  };
-
-  console.log(variable);
-
   const Reg = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     const testEmail = new RegExp(Reg).test(email);
     e.preventDefault();
     window.scrollTo({ top: 0, behavior: "smooth" });
+
+    let IMG = ["uploads\\tuyen-dung.png"];
+
+    if (images.length > 0) {
+      IMG = await uploadImage(images);
+    }
+
+    const variable = {
+      email: email,
+      sdt: sdt,
+      contact: contact,
+      salary: salary,
+      title: title,
+      description: description,
+      img: IMG.length < 1 ? "" : IMG,
+      writer: user._id,
+      city: city.value,
+      career: career.value,
+    };
+
     if (
       title !== "" &&
       title.length >= 10 &&
@@ -166,42 +168,36 @@ function PostRecruitment(props) {
         msgBody: "Đăng tin không thành công, Vui lòng xem lại thông tin",
         msgError: true,
       });
-
       if (title === "" || title.length < 10) {
         setvalititle(false);
       }
       if (title !== "" && title.length >= 10) {
         setvalititle(true);
       }
-
       if (description === "" || description.length < 30) {
         setvalidescription(false);
       }
       if (description !== "" && description.length >= 30) {
         setvalidescription(true);
       }
-
       if (salary === "") {
         setvalisalary(false);
       }
       if (salary !== "") {
         setvalisalary(true);
       }
-
       if (city === "") {
         setvalicity(false);
       }
       if (city !== "") {
         setvalicity(true);
       }
-
       if (career === "") {
         setvalicareer(false);
       }
       if (career !== "") {
         setvalicareer(true);
       }
-
       if (email === "" || !testEmail) {
         setValiemail(false);
       }
@@ -211,7 +207,10 @@ function PostRecruitment(props) {
     }
   };
 
-  console.log(user);
+  const imagesUpload = (img) => {
+    setImages(img);
+  };
+
   return (
     <>
       <Helmet>
@@ -265,7 +264,7 @@ function PostRecruitment(props) {
                     />
                   </div>
                 </div>
-                <ImageUpload reLoadImages={reLoadImages} />
+                <ImageUpload imagesUpload={imagesUpload} />
                 <h4 className="text-uppercase text-secondary mt-5">
                   Mô tả công việc:
                 </h4>

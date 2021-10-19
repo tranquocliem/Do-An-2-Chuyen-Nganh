@@ -7,7 +7,6 @@ import { Link } from "react-router-dom";
 import chuyenDoiURL from "../../Shared/ChuyenDoiURL";
 
 function CVNoiBatItem(props) {
-  console.log(props);
   let luong = props.recruitment.salary;
   const dateCre = moment(props.recruitment.createdAt).format(
     "DD/MM/YYYY h:mm:ss"
@@ -17,7 +16,7 @@ function CVNoiBatItem(props) {
     original: item,
     thumbnail: item,
   }));
-
+  luong = parseInt(luong);
   luong = luong.toLocaleString("it-IT");
   const user = props.user;
 

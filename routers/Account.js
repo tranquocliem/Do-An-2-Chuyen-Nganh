@@ -362,14 +362,13 @@ accRouter.post("/forgetPass", (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
       message: {
         msgBody: "Vui lòng nhập E-mail",
         msgError: true,
       },
     });
-    return;
   } else {
     Account.findOne({ email }, (err, user) => {
       if (err) {
@@ -395,28 +394,19 @@ accRouter.post("/forgetPass", (req, res) => {
         JWT.verify(valiToken, process.env.JWT_RESET_PASSWORD, (err) => {
           if (err) {
             if ((err.name && err.name === "TokenExpiredError") || !valiToken) {
-              const transporter = nodemailer.createTransport({
-                service: "gmail",
-                auth: {
-                  type: "OAuth2",
-                  user: "tranquocliem12c6@gmail.com",
-                  clientId: process.env.CLIENT_ID,
-                  clientSecret: process.env.CLIENT_SECRET,
-                  refreshToken: process.env.REFRESH_TOKEN,
-                  accessToken: accessToken,
-                },
-              });
-
               const token = JWT.sign(
                 { _id: user._id },
                 process.env.JWT_RESET_PASSWORD,
                 { expiresIn: "10m" }
               );
 
+              sgMail.setApiKey(process.env.API_KEY_SENDGRID);
+
               const mainOptions = {
-                // thiết lập đối tượng, nội dung gửi mail
-                // <p>Link: ${process.env.CLIENT_URL}/activate/${token}&150999</p>
-                from: "tranquocliem12c6@gmail.com",
+                from: {
+                  name: "Trần Quốc Liêm",
+                  email: process.env.SENDER_SENDGRID,
+                },
                 to: email,
                 subject: "Đặt Lại Mật Khẩu",
                 html: `
@@ -428,7 +418,7 @@ accRouter.post("/forgetPass", (req, res) => {
                           `,
               };
 
-              return user.updateOne({ resetLink: token }, (err) => {
+              return user.updateOne({ resetLink: token }, async (err) => {
                 if (err) {
                   res.status(400).json({
                     success: false,
@@ -439,29 +429,82 @@ accRouter.post("/forgetPass", (req, res) => {
                   });
                   return;
                 } else {
-                  transporter.sendMail(mainOptions, (err) => {
-                    if (err) {
-                      res.status(400).json({
-                        success: false,
-                        message: {
-                          msgBody: "Có lỗi khi gửi mail",
-                          msgError: true,
-                        },
-                        err,
-                      });
-                      return;
-                    } else {
-                      return res.status(200).json({
-                        success: true,
-                        message: {
-                          msgBody: "Thành công!",
-                          msgError: false,
-                        },
-                      });
-                    }
+                  await sgMail.send(mainOptions);
+
+                  return res.status(200).json({
+                    success: true,
+                    message: {
+                      msgBody: "Thành công",
+                      msgError: false,
+                    },
                   });
                 }
               });
+
+              // const transporter = nodemailer.createTransport({
+              //   service: "gmail",
+              //   auth: {
+              //     type: "OAuth2",
+              //     user: "tranquocliem12c6@gmail.com",
+              //     clientId: process.env.CLIENT_ID,
+              //     clientSecret: process.env.CLIENT_SECRET,
+              //     refreshToken: process.env.REFRESH_TOKEN,
+              //     accessToken: accessToken,
+              //   },
+              // });
+              // const token = JWT.sign(
+              //   { _id: user._id },
+              //   process.env.JWT_RESET_PASSWORD,
+              //   { expiresIn: "10m" }
+              // );
+              // const mainOptions = {
+              //   // thiết lập đối tượng, nội dung gửi mail
+              //   // <p>Link: ${process.env.CLIENT_URL}/activate/${token}&150999</p>
+              //   from: "tranquocliem12c6@gmail.com",
+              //   to: email,
+              //   subject: "Đặt Lại Mật Khẩu",
+              //   html: `
+              //                 <h1>Vui Lòng Sử Dụng Đường Link Phía Dưới Để Đặt Lại Mật Khẩu</h1>
+              //                 <p>Link: <a href="http://localhost:3000/resetPassword/${token}&150999">Click Vào Đây!!!</a></p>
+              //                 <h3 style="color:red;">Lưu ý: Đường Link Này Chỉ Có Thời Hạn Là 10 Phút Sau Thời Hạn Sẽ Không Còn Hiệu Lực Nũa!!!</h3>
+              //                 <hr />
+              //                 <p>Xin gửi lời cảm ơn đến bạn!!!</p>
+              //             `,
+              // };
+              // return user.updateOne({ resetLink: token }, (err) => {
+              //   if (err) {
+              //     res.status(400).json({
+              //       success: false,
+              //       message: {
+              //         msgBody: "Có lỗi xãy ra",
+              //         msgError: true,
+              //       },
+              //     });
+              //     return;
+              //   } else {
+              //     transporter.sendMail(mainOptions, (err) => {
+              //       if (err) {
+              //         res.status(400).json({
+              //           success: false,
+              //           message: {
+              //             msgBody: "Có lỗi khi gửi mail",
+              //             msgError: true,
+              //           },
+              //           err,
+              //         });
+              //         return;
+              //       } else {
+              //         return res.status(200).json({
+              //           success: true,
+              //           message: {
+              //             msgBody: "Thành công!",
+              //             msgError: false,
+              //           },
+              //         });
+              //       }
+              //     });
+              //   }
+              // });
             } else {
               res.status(400).json({
                 success: false,

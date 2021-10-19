@@ -1,60 +1,60 @@
 import React, { useState } from "react";
 import Dropzone from "react-dropzone";
-import RecruimentService from "../../Services/RecruimentService";
 
 function ImageUpload(props) {
   const [images, setImages] = useState([]);
 
   const onDrop = (files) => {
-    let formData = new FormData();
-    const config = {
-      header: { "content-type": "multipart/form-data" },
-    };
-    formData.append("file", files[0]);
-    RecruimentService.ImageUpload(formData, config).then((data) => {
-      if (data.success) {
-        setImages([...images, data.url]);
-        props.reLoadImages([...images, data.url]);
-      } else {
-        alert("tải hình lên gặp lỗi!!!");
-      }
-    });
+    let newImages = [];
+
+    if (images.length <= 9) {
+      files.forEach((file) => {
+        if (!file) return alert("Hình ảnh không tồn tại");
+        if (file.type !== "image/jpeg" && file.type !== "image/png") {
+          return alert("Định dạng không hổ trợ");
+        }
+        if (file.size > 1024 * 1024 * 25) {
+          return alert("File tải lên quá lớn");
+        }
+        if (newImages.length <= 9) {
+          return newImages.push(file);
+        } else {
+          return alert("Số ảnh tải lên không quá 10");
+        }
+      });
+    } else {
+      alert("Số ảnh tải lên không quá 10");
+    }
+
+    if (images.length <= 9) {
+      setImages([...images, ...newImages]);
+      let newIMG = [...images, ...newImages];
+      props.imagesUpload(newIMG);
+    } else {
+      alert("Số ảnh tải lên không quá 10");
+    }
   };
 
   const maxFiles = (files) => {
-    if (images.length > 3) {
-      alert("Cảnh Báo!!! hiện tại web chỉ hổ trợ tải lên tối đa 4 ảnh");
-    } else if (images.length <= 3) {
+    if (images.length > 9) {
+      alert("Số ảnh tải lên không quá 10");
+    } else if (images.length <= 9) {
       onDrop(files);
     }
   };
 
-  const onDelete = (image) => {
-    let idx = images.indexOf(image);
-    let newImages = [...images];
-
-    const js = JSON.stringify(image);
-    const img = js.slice(1, js.length - 1); //bỏ ký tự đầu và cuối
-
-    const variable = {
-      file: img,
-    };
-
-    RecruimentService.deleteImageUpload(variable).then((data) => {
-      if (data.success) {
-        newImages.splice(idx, 1);
-        setImages(newImages);
-        props.reLoadImages(newImages);
-      }
-      return;
-    });
+  const deleteImg = (i) => {
+    const newArrImages = [...images];
+    newArrImages.splice(i, 1);
+    setImages(newArrImages);
+    props.imagesUpload(newArrImages);
   };
 
   return (
     <>
       <div className="row pt-5 d-flex justify-content-center">
         <div className="col">
-          <Dropzone onDrop={maxFiles} multiple={false} maxSize={80000000}>
+          <Dropzone onDrop={maxFiles} multiple={true} maxSize={80000000}>
             {({ getRootProps, getInputProps }) => (
               <div className="drop-zone" {...getRootProps()}>
                 <input {...getInputProps()} />
@@ -87,9 +87,11 @@ function ImageUpload(props) {
               {images.map((image, index) => (
                 <img
                   alt={`hinh-${index}`}
-                  onClick={() => onDelete(image)}
+                  // onClick={() => onDelete(image)}
+                  // src={image}
+                  onClick={() => deleteImg(index)}
                   style={{ width: "300px", height: "240px", margin: "5px" }}
-                  src={image}
+                  src={URL.createObjectURL(image)}
                   key={index}
                 />
               ))}

@@ -18,6 +18,8 @@ function CVMoiNhat(props) {
           thumbnail: img,
         }));
 
+        luong = parseInt(luong);
+
         luong = luong.toLocaleString("it-IT");
         const user = props.user;
 

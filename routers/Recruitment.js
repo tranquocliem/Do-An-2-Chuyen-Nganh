@@ -31,14 +31,13 @@ const upload = multer({
       ext !== ".JPG" &&
       ext !== ".jpeg" &&
       ext !== ".svg" &&
-      ext !== ".SVG" &&
-      ext !== ".mp4"
+      ext !== ".SVG"
     ) {
       return cb(new Error("Lỗi rồi"));
     }
     cb(null, true);
   },
-}).single("file");
+}).array("file");
 
 //upload ảnh vào forder uploads
 recruitmentRouter.post(
@@ -55,16 +54,34 @@ recruitmentRouter.post(
           },
           err,
         });
+      } else {
+        let arrImages = [];
+        const files = req.files;
+
+        for (const file of files) {
+          const { path } = file;
+          arrImages.push(path);
+        }
+
+        return res.json({
+          success: true,
+          message: {
+            msgBody: "Upload thành công!!!",
+            msgError: false,
+          },
+          url: arrImages,
+        });
       }
-      return res.json({
-        success: true,
-        message: {
-          msgBody: "Upload thành công!!!",
-          msgError: false,
-        },
-        url: res.req.file.path,
-        fileName: res.req.file.filename,
-      });
+
+      // return res.json({
+      //   success: true,
+      //   message: {
+      //     msgBody: "Upload thành công!!!",
+      //     msgError: false,
+      //   },
+      //   url: res.req.file.path,
+      //   fileName: res.req.file.filename,
+      // });
     });
   }
 );
@@ -104,16 +121,8 @@ recruitmentRouter.post(
   "/createRecruitment",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    const {
-      email,
-      sdt,
-      contact,
-      salary,
-      title,
-      description,
-      city,
-      career,
-    } = req.body;
+    const { email, sdt, contact, salary, title, description, city, career } =
+      req.body;
 
     const img =
       req.body.img || req.body.img.length >= 1
