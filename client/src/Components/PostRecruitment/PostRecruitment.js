@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import "./index.css";
 import { Helmet } from "react-helmet";
 import QuillEditor from "../QuillEditor/QuillEditor";
@@ -23,6 +23,7 @@ function PostRecruitment(props) {
   const [contact, setContact] = useState("");
   const [title, setTitle] = useState("");
   const { user } = useContext(AuthContext);
+  const [selectSalary, setSelectSalary] = useState("");
 
   //Validate Form Nhập
   const [valititle, setvalititle] = useState(true);
@@ -126,7 +127,7 @@ function PostRecruitment(props) {
       email: email,
       sdt: sdt,
       contact: contact,
-      salary: salary,
+      salary: selectSalary === "true" ? salary : "Thoả Thuận",
       title: title,
       description: description,
       img: IMG.length < 1 ? "" : IMG,
@@ -211,6 +212,38 @@ function PostRecruitment(props) {
     setImages(img);
   };
 
+  const renderInputSalary = () => {
+    return (
+      <>
+        <label>Tiền Lương</label>
+        {valisalary === false ? (
+          <p
+            style={{ fontStyle: "italic", transition: "0.5s" }}
+            className="text-warning no-select"
+          >
+            Lưu ý: không bỏ trống
+          </p>
+        ) : null}
+        {maxSalary === false ? null : (
+          <p className="valiSalary">
+            <i>Cảnh báo số quá lớn có thể không hổ trợ!!!</i>
+          </p>
+        )}
+        <input
+          style={{ zIndex: "unset" }}
+          className="form-control"
+          type="number"
+          maxLength={10}
+          value={salary}
+          name="salary"
+          placeholder="Tiền Lương"
+          onChange={handleTien}
+          onKeyPress={handleTien}
+        />
+      </>
+    );
+  };
+
   return (
     <>
       <Helmet>
@@ -283,37 +316,28 @@ function PostRecruitment(props) {
                 />
                 <div className="control-group">
                   <div className="form-group floating-label-form-group controls mb-0 pb-2">
-                    <label>Tiền Lương</label>
-                    {valisalary === false ? (
-                      <p
-                        style={{ fontStyle: "italic", transition: "0.5s" }}
-                        className="text-warning no-select"
-                      >
-                        Lưu ý: không bỏ trống
-                      </p>
-                    ) : null}
-                    {maxSalary === false ? null : (
-                      <p className="valiSalary">
-                        <i>Cảnh báo số quá lớn có thể không hổ trợ!!!</i>
-                      </p>
-                    )}
-                    <input
-                      style={{ zIndex: "unset" }}
-                      className="form-control"
-                      type="number"
-                      maxLength={10}
-                      value={salary}
-                      name="salary"
-                      placeholder="Tiền Lương"
-                      onChange={handleTien}
-                      onKeyPress={handleTien}
-                    />
+                    <select
+                      className="form-control mt-3"
+                      // name="role"
+                      value={selectSalary}
+                      onChange={(e) => setSelectSalary(e.target.value)}
+                    >
+                      <option value="" disabled>
+                        {" "}
+                        -- Chọn Hình Thức Lương --
+                      </option>
+                      <option value="false">Thoả Thuận</option>
+                      <option value="true">Số Tiền Cụ Thể</option>
+                    </select>
+                    {selectSalary === "true" ? renderInputSalary() : null}
                   </div>
-                  {salary === "" || isNaN(salary) ? (
-                    <div className="my-3"></div>
-                  ) : (
-                    <p className="salary-display bg-primary">{`${fm()} VNĐ`}</p>
-                  )}
+                  {selectSalary === "true" ? (
+                    salary === "" || isNaN(salary) ? (
+                      <div className="my-3"></div>
+                    ) : (
+                      <p className="salary-display bg-primary">{`${fm()} VNĐ`}</p>
+                    )
+                  ) : null}
                 </div>
                 <Selects
                   handleCity={handleCity}

@@ -4,6 +4,8 @@ const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
+const session = require("express-session");
+const RedisStore = require("connect-redis")(session);
 const Account = require("./models/Account");
 
 require("dotenv").config({
@@ -13,7 +15,19 @@ require("dotenv").config({
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
-
+app.use(
+  session({
+    store:
+      process.env.NODE_ENV === "production"
+        ? new RedisStore({
+            url: process.env.REDIS_URL,
+          })
+        : null,
+    secret: "sdjkfgydjfkyguergdf6g56d+8y9+7rt3478ui4jkdsgf",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
 //kết nối với database
 
 // const db = require("./configs/key").mongoURI;
